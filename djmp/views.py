@@ -166,6 +166,28 @@ def get_mapproxy(layer, seed=False, ignore_warnings=True, renderd=False):
                'sources': ['default_source']},
               }
 
+    caches = {'default_cache':
+              {
+               'cache':
+               {
+                   'type': 's3',
+                   'bucket_name': 'panchicore',
+                   'directory': os.path.join(MAPPROXY_CACHE_DIR,
+                                             'mapproxy',
+                                             'layer',
+                                             '%s' % layer.id,
+                                             'map',
+                                             'wmts',
+                                             layer_name,
+                                             'default_grid',
+                                             ),
+               },
+               'grids': ['default_grid'],
+               'sources': ['default_source']},
+              }
+
+
+
     # The layer is connected to the cache
     layers = [
         {'name': layer_name,
@@ -222,6 +244,7 @@ def get_mapproxy(layer, seed=False, ignore_warnings=True, renderd=False):
 
     # Make sure the config is valid.
     errors, informal_only = validate_options(conf_options)
+
     for error in errors:
         log.warn(error)
     if not informal_only or (errors and not ignore_warnings):

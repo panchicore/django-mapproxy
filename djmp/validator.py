@@ -363,7 +363,12 @@ cache_types = {
             'http': number(),
         },
         'secondary_index': bool(),
-    }
+    },
+    's3': {
+        'directory': str(),
+        'bucket_name': str(),
+    },
+
 }
 
 on_error = {

@@ -6,13 +6,18 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from mapproxy.seed.config import SeedConfigurationError, ConfigurationError
+from mapproxy_config import get_cache_config
 
-MAPPROXY_CACHE_DIR = getattr(settings, 'MAPPROXY_CACHE_DIR', tempfile.gettempdir())
+MAPPROXY_CACHE_URL = get_cache_config(getattr(settings, 'MAPPROXY_CACHE_URL'))
+
+MAPPROXY_CACHE_TYPE = MAPPROXY_CACHE_URL[0]
+MAPPROXY_CACHE_DIR = MAPPROXY_CACHE_URL[1]
 
 log = logging.getLogger('djmapproxy')
 
 CACHE_TYPES = [
     ['file', 'file'],
+    ['s3', 's3'],
     #['mbtiles','mbtiles'],
     #['sqllite', 'sqllite'],
     ['geopackage', 'geopackage']
@@ -54,7 +59,7 @@ class Tileset(models.Model):
     bbox_y1 = models.DecimalField(max_digits=19, decimal_places=15, default=89.9, validators = [MinValueValidator(-89.9), MaxValueValidator(89.9)])
 
     # cache
-    cache_type = models.CharField(max_length=10, choices=CACHE_TYPES)
+    cache_type = models.CharField(max_length=10, choices=CACHE_TYPES, default=MAPPROXY_CACHE_TYPE)
     # file cache params
     directory_layout = models.CharField(max_length=20, choices=DIR_LAYOUTS, blank=True, null=True)
     directory = models.CharField(max_length=256, default=MAPPROXY_CACHE_DIR, blank=True, null=True)

@@ -1,6 +1,7 @@
 import json
 import os
 import base64
+import tempfile
 
 from pyproj import Proj, transform
 
@@ -156,3 +157,22 @@ def bbox_to_3857(tileset):
 
 def u_to_str(string):
     return string.encode('ascii', 'ignore')
+
+def get_cache_config(string=None):
+    """
+    get cache configs from given MAPPROXY_CACHE_URL.
+    splits string by ":" char and result will ends with:
+    0: type
+    1: directory where cache will be created
+    2: bucket, if type is s3.
+
+    :param string: MAPPROXY_CACHE_URL
+    :return: tuple with cache parts
+    """
+    if not string:
+        string = 'file:{}'.format(tempfile.gettempdir())
+
+    if string.count(":") == 0:
+        raise ValueError("MAPPROXY_CACHE_URL should be <type>:<dir>")
+
+    return tuple(string.split(":"))

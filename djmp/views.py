@@ -22,7 +22,7 @@ import logging
 log = logging.getLogger('mapproxy.config')
 
 
-from .models import Tileset, MAPPROXY_CACHE_DIR
+from .models import Tileset, MAPPROXY_CACHE_URL
 from .helpers import get_status
 from .validator import validate_references, validate_options
 
@@ -150,43 +150,26 @@ def get_mapproxy(layer, seed=False, ignore_warnings=True, renderd=False):
               {
                'cache':
                {
-                   'type': 'file',
                    'directory_layout': 'tms',
-                   'directory': os.path.join(MAPPROXY_CACHE_DIR,
-                                             'mapproxy',
-                                             'layer',
-                                             '%s' % layer.id,
-                                             'map',
-                                             'wmts',
-                                             layer_name,
-                                             'default_grid',
-                                             ),
                },
                'grids': ['default_grid'],
                'sources': ['default_source']},
               }
 
-    caches = {'default_cache':
-              {
-               'cache':
-               {
-                   'type': 's3',
-                   'bucket_name': 'panchicore',
-                   'directory': os.path.join(MAPPROXY_CACHE_DIR,
-                                             'mapproxy',
-                                             'layer',
-                                             '%s' % layer.id,
-                                             'map',
-                                             'wmts',
-                                             layer_name,
-                                             'default_grid',
-                                             ),
-               },
-               'grids': ['default_grid'],
-               'sources': ['default_source']},
-              }
+    caches['default_cache']['cache']['type'] = MAPPROXY_CACHE_URL[0]
+    caches['default_cache']['cache']['directory'] = os.path.join(
+        MAPPROXY_CACHE_URL[1],
+        'mapproxy',
+        'layer',
+        '%s' % layer.id,
+        'map',
+        'wmts',
+        layer_name,
+        'default_grid',
+    )
 
-
+    if MAPPROXY_CACHE_URL[0] == 's3':
+        caches['default_cache']['cache']['bucket_name'] = MAPPROXY_CACHE_URL[2]
 
     # The layer is connected to the cache
     layers = [
